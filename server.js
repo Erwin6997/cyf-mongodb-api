@@ -47,18 +47,77 @@ client.connect(function () {
       });
     }
   });
+
   app.post('/films', function (request, response) {
-    response.send('Create a film');
+    
+    // const year= year;
+    // const plot = plot;
+    // const title = title;
+    // const runtime = runtime;
+    const movie = request.body;
+    // {
+    //   year: year,
+    //   plot: plot,
+    //   title: title,
+    //   runtime: runtime
+    //   };
+    collection.insertOne(movie, function (error, result) {
+        if(error){
+        response.status(400).send(error);
+        }else if (result){
+            response.status(200).send(result.ops[0]);
+        }else {
+            response.sendStatus(404);
+        }
+    });
   });
+
 
   app.put('/films/:id', function (request, response) {
-    response.send('Update one film');
-  });
+    const searchObject = { "id" : request.params.id };
+    console.log("hiiiiiiii");
+    console.log(searchObject);
 
+    collection.find(searchObject).toArray(function(error, result) {
+      response.send(error || result);
+      const update = {
+        $set: {
+          year,
+          title,
+          plot,
+          runtime
+        },
+      };
+    collection.findOneAndUpdate(searchObject , update ,function (error, result) {
+      if(error){
+        request.status(400).send(error);
+          }else if (request.result) {
+            request.sendStatus(204)
+          } else {
+            request.sendStatus(404)
+          }
+          response.send('Update one film');
+      });
+    //5f1da8051afa0868e44927ca
+    //5f1da8abf120f96925065d6e
+    });
+  });
   app.delete('/films/:id', function (request, response) {
-    response.send('Delete one film');
+    const searchObject = { "id" : request.params.id };
+    console.log(searchObject);
+    collection.deleteOne(searchObject , function (error, result) {
+      if(error){
+        request.status(400).send(error);
+        console.log("Error", error);
+          }else if (request.result) {
+            request.sendStatus(204)
+            response.send('Delete one film');
+          } else {
+            request.sendStatus(404)
+          }
+      });
   });
-
+  // client.close();
   // app.listen(3000);
   const port = 3000;
   app.listen(port || 3000, function() {
